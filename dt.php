@@ -38,17 +38,19 @@ $result = "";
 if(isset($_POST['sec'])&&isset($_POST['msec'])){
   $correction_time = $_POST['sec'] + ($_POST['msec']/1000); # Web から貰った補正時刻
   $original_diff = microtime(true) - $correction_time;
-	$command ="sudo ./setdate_milli ".$_POST['sec']." ".$_POST['msec'];
-	$logfile->log('['.__LINE__.']'.mtime().'command = '.$command);
-	$result = `$command`;
+  if (abs($original_diff) > 0.1){
+  	$command ="sudo ./setdate_milli ".$_POST['sec']." ".$_POST['msec'];
+  	$logfile->log('['.__LINE__.']'.mtime().'command = '.$command);
+  	$result = `$command`;
+  }
   $after_diff = microtime(true) - $correction_time;
-	$logfile->log('['.__LINE__.']'.mtime().'result = '.$result);
+  $logfile->log('['.__LINE__.']'.mtime().'result = '.$result);
 
-	$json['result']=$result;
+  $json['result']=$result;
   $json['original_diff']=$original_diff;
   $json['after_diff']=$after_diff;
 
-	header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Origin: *");
 	header('Content-Type: application/json');
 	$json_str = json_encode( $json );
 	error_log('$json_str = '.$json_str);
