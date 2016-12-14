@@ -19,6 +19,8 @@ require_once("vendor/autoload.php");
 function mtime(){
 	return substr(explode(".", (microtime(true) . ""))[1], 0, 3);
 }
+//echo microtime(true);exit;
+
 
 #require_once("Log.php");
 $logfilename = "dt.out.log";
@@ -33,13 +35,18 @@ $logfile->log('['.__LINE__.']'.'$command = '.$command);
 `$command`;
 $logfile->log('['.__LINE__.']'.mtime().'*** STARTED 2***');
 $result = "";
-if(isset($_POST['sec'])&&isset($_POST['usec'])){
-	$command ="sudo ./setdate_milli ".$_POST['sec']." ".$_POST['usec'];
+if(isset($_POST['sec'])&&isset($_POST['msec'])){
+  $correction_time = $_POST['sec'] + ($_POST['msec']/1000); # Web から貰った補正時刻
+  $original_diff = microtime(true) - $correction_time;
+	$command ="sudo ./setdate_milli ".$_POST['sec']." ".$_POST['msec'];
 	$logfile->log('['.__LINE__.']'.mtime().'command = '.$command);
 	$result = `$command`;
+  $after_diff = microtime(true) - $correction_time;
 	$logfile->log('['.__LINE__.']'.mtime().'result = '.$result);
 
 	$json['result']=$result;
+  $json['original_diff']=$original_diff;
+  $json['after_diff']=$after_diff;
 
 	header("Access-Control-Allow-Origin: *");
 	header('Content-Type: application/json');
@@ -60,17 +67,19 @@ if(isset($_POST['sec'])&&isset($_POST['usec'])){
   <script>
     var now = new Date().getTime();
     var sec = Math.floor(now / 1000);
-    var usec = now % 1000;
+    var msec = now % 1000;
 
     $.ajax({
         type: "POST",
         url: "dt.php",
-        data: {sec: sec, usec: usec},
+        data: {sec: sec, msec: msec},
         dataType: "json",
       })
      .then(
        function(data, dataType){
          console.log('OK : ');
+         console.log('original_diff = ' + data.original_diff)
+         console.log('after_diff = ' + data.after_diff)
        },
        function(XMLHttpRequest, textStatus, errorThrown){
          console.log('Error : ' + errorThrown);
