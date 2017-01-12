@@ -65,7 +65,8 @@ if(isset($_POST['sec'])&&isset($_POST['msec'])){
 <head>
   <meta charset="UTF-8">
   <title>データアップロード</title>
-  <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+  <script src="node_modules/jquery/jquery.min.js"></script>
   <script>
     var now = new Date().getTime();
     var sec = Math.floor(now / 1000);
